@@ -1,0 +1,26 @@
+[project]
+name = "marriage-early-stopping"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["returns>=0.29"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 99
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+# marriage_early_stopping.py — транскрипция скриншота 1:1 (см. CLAUDE.md);
+# автоформатирование поменяло бы стиль кавычек и т.п. в оригинальном тексте.
+exclude = ["marriage_early_stopping.py"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.2",
+]

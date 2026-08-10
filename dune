@@ -1,5 +1,0 @@
-(executable
- (name marriage_early_stopping)
- (public_name marriage_early_stopping)
- (libraries core)
- (preprocess (pps ppx_jane)))
