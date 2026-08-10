@@ -1,0 +1,9 @@
+(executables
+ (names marriage_early_stopping marriage_early_stopping_oop marriage_early_stopping_naive)
+ (public_names
+  marriage_early_stopping
+  marriage_early_stopping_oop
+  marriage_early_stopping_naive)
+ (libraries core marriage_early_stopping_lib)
+ (preprocess
+  (pps ppx_jane)))

@@ -1,0 +1,10 @@
+(library
+ (name marriage_early_stopping_lib)
+ (modules
+  marriage_early_stopping_core
+  marriage_early_stopping_oop_core
+  marriage_early_stopping_naive_core)
+ (wrapped false)
+ (libraries core)
+ (preprocess
+  (pps ppx_jane)))

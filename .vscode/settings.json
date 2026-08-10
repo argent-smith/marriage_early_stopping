@@ -1,7 +1,7 @@
 {
   "ocaml.sandbox": {
     "kind": "opam",
-    "switch": "/Users/paul/work/ocaml/vs_python"
+    "switch": "/Users/paul/work/ocaml/vs_python/ocaml"
   },
   "cSpell.words": [
     "душность",
@@ -14,6 +14,8 @@
     "чекпоинт",
     "Чекпоинт",
     "чекпоинта",
+    "Alcotest",
+    "failf",
     "overfit",
     "prerr",
     "sexp",

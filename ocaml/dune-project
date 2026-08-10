@@ -24,4 +24,8 @@
   (core
    (>= v0.17.0))
   (ppx_jane
-   (>= v0.17.0))))
+   (>= v0.17.0))
+  (alcotest
+   (and
+    (>= 1.7.0)
+    :with-test))))
