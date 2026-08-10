@@ -7,10 +7,18 @@
 нотации.
 
 ## Файлы (все в корне)
-- `dune-project`, `dune` — конфигурация сборки. Executable
-  `marriage_early_stopping`, библиотека `core`, препроцессинг
-  `(pps ppx_jane)` — нужен для `[@@deriving sexp_of]`, `[%string ...]`
-  (ppx_string) и `let%bind.Or_error` (там, где инфикс не использован).
+- `dune-project` — метаданные проекта и opam-пакета (`name`, `license`,
+  `authors`, `source`, секция `package` с `synopsis`/`description`/
+  `depends`) плюс `(generate_opam_files true)`. `dune`, помимо
+  `(executable ...)`, добавляет `(public_name marriage_early_stopping)`
+  — без него исполняемый файл не привязан к пакету и не ставится
+  через `opam install .`. Препроцессинг `(pps ppx_jane)` — нужен для
+  `[@@deriving sexp_of]`, `[%string ...]` (ppx_string) и
+  `let%bind.Or_error` (там, где инфикс не использован).
+- `marriage_early_stopping.opam` — генерируется dune из
+  `dune-project`, вручную не редактируется (первая строка файла об
+  этом явно предупреждает). Пересоздаётся любым `dune build`, если
+  `dune-project` менялся. Проверено `opam lint` — проходит без замечаний.
 - `marriage_early_stopping.ml` — единственный OCaml-исходник.
 - `marriage_early_stopping.py` — оригинал, с которого делался порт
   (транскрипция из скриншота, 1:1, для сравнения). Класс с мутируемым
@@ -49,13 +57,16 @@
 
 ## Сборка и запуск
 Проект использует локальный opam switch (песочница `_opam/` в корне
-проекта) — зависимости (`core`, `ppx_jane`) изолированы от глобального
-switch и от других OCaml-проектов в рабочей области.
+проекта) — зависимости изолированы от глобального switch и от других
+OCaml-проектов в рабочей области. Сами зависимости (`core`,
+`ppx_jane`) объявлены не вручную, а в `depends` пакета
+`marriage_early_stopping.opam` (генерируется из `dune-project`).
 
 Первоначальная настройка (один раз):
 ```
 opam switch create . 5.3.0 --yes
-opam install core dune ppx_jane --yes
+opam install . --deps-only --yes   # core, ppx_jane — из depends .opam
+opam install ocaml-lsp-server ocamlformat --yes   # для редактора, см. ниже
 ```
 
 Сборка и запуск:
@@ -72,11 +83,29 @@ dune exec ./marriage_early_stopping.exe
 `_opam/` и `_build/` — генерируемые директории, в репозиторий не
 входят.
 
+### Редактор (VS Code + OCaml Platform)
+Расширению нужны собственные `ocamllsp` и `ocamlformat-rpc` — а не те,
+что стоят в глобальном switch рабочей области. Обе версии (LSP-сервер
+и dune, генерирующий merlin-конфиг) должны совпадать, иначе
+"incompatible version of Dune"; без `ocamlformat` (>0.21.0, даёт
+бинарь `ocamlformat-rpc`) типы при наведении не форматируются.
+`.vscode/settings.json` явно фиксирует sandbox:
+```json
+"ocaml.sandbox": { "kind": "opam", "switch": "/Users/paul/work/ocaml/vs_python" }
+```
+После установки пакетов или пересоздания switch — команда в VS Code
+**OCaml: Restart Language Server** (расширение не подхватывает новое
+окружение само, пока не перезапустишь ocamllsp-процесс).
+
 ## Уже проверено
 - 2026-08-10, macOS, локальный opam switch (`_opam/`, OCaml 5.3.0,
   `core` v0.17.1, `ppx_jane` v0.17.0): `dune build` и `dune exec`
   через `opam exec --` дают тот же вывод, что и ниже — сборка в
   изолированной песочнице подтверждена рабочей.
+- 2026-08-10: `marriage_early_stopping.opam` сгенерирован из
+  `dune-project` (`opam-version: "2.0"`), `opam lint` — без замечаний.
+  `dune build @install` и `dune exec marriage_early_stopping` (по
+  `public_name`, не только по имени .exe) проходят без ошибок.
 - Исторически (первая итерация): компилировалось и запускалось под
   OCaml 5.2.0 на Ubuntu 24.04 (apt даёт только 4.14 — под core/ppx_jane
   пришлось поднимать 5.2.0 через opam). Тот конкретный switch не

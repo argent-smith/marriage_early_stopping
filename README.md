@@ -26,11 +26,14 @@
 ## Сборка и запуск
 
 Проект использует локальный opam switch (песочница `_opam/` в корне,
-изолирована от прочих OCaml-проектов):
+изолирована от прочих OCaml-проектов) и оформлен как opam-пакет —
+[marriage_early_stopping.opam](marriage_early_stopping.opam)
+генерируется dune из `dune-project` (сам файл не редактируется, в нём
+только служебная пометка об этом):
 
 ```sh
 opam switch create . 5.3.0 --yes
-opam install core dune ppx_jane --yes
+opam install . --deps-only --yes   # core, ppx_jane — по depends из .opam
 dune build
 dune exec ./marriage_early_stopping.exe
 ```
