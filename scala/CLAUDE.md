@@ -174,7 +174,7 @@ for-comprehension — `cats` здесь используется намерен�
 - **Монадная композиция — `Either`/`Option`-комбинаторы, не
   unwrap-и-match.** `CheckAtmosphere#apply`:
   `checkpointStep(...).getOrElse(overfitStep(...))` —
-  `checkpointStep` возвращает `Option`, что День не стал новым лучшим —
+  `checkpointStep` возвращает `Option`, что день не стал новым лучшим —
   не «ошибка», а `None` (условие не выполнено), `getOrElse` ленив
   (сигнатура stdlib `Option#getOrElse` берёт аргумент by-name — то же
   свойство, что и `.or { }` в Ruby dry-monads). `reset`:
@@ -293,6 +293,6 @@ pytest, `output(...).to_stdout` в RSpec, golden-файлов в dune cram
 - 2026-08-11: `scala-cli test .` — 18/18 (8 fp + 5 oop + 5 naive),
   `scala-cli fmt --check .` и `scala-cli fix --check . --power` — оба
   чисто, `scala-cli run . --main-class marriageearlystopping.<naive|oop|fp>.run`
-  для всех трёх вариантов даёт тот же текст, что и остальные восемь
+  для всех трёх вариантов даёт тот же текст, что и остальные девять
   портов (после исправления locale-бага выше); механизм тестов
   перепроверен порчей одной проверки (см. «Тесты»).
