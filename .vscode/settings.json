@@ -58,5 +58,8 @@
     "Sexplib",
     "sprintf",
     "venv"
-  ]
+  ],
+  "files.watcherExclude": {
+    "**/target/**": true
+  }
 }

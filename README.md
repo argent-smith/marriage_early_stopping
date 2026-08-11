@@ -1,10 +1,11 @@
 # marriage_early_stopping
 
 Шуточный Python-класс `MarriageEarlyStopping` — техника early stopping
-из машинного обучения, применённая к отношениям — портирован девять
-раз на три языка. Учебный пример: как один и тот же сценарий выглядит
-в разных парадигмах и при разном уровне строгости, от буквальной
-транскрипции с багами оригинала до идиоматичного FP с монадами.
+из машинного обучения, применённая к отношениям — портирован двенадцать
+раз на четыре языка. Учебный пример: как один и тот же сценарий
+выглядит в разных парадигмах и при разном уровне строгости, от
+буквальной транскрипции с багами оригинала до идиоматичного FP с
+монадами.
 
 ## Структура
 
@@ -12,18 +13,20 @@
 ocaml/    — три OCaml-порта, свой dune-project и локальная песочница
 python/   — три Python-варианта, свой pyproject.toml и .venv
 ruby/     — три Ruby-варианта, свой Gemfile и vendor/bundle
+scala/    — три Scala-варианта, свой project.scala (scala-cli)
 ```
 
 Подробности архитектуры и разбор конкретных решений в каждой папке —
 в [CLAUDE.md](CLAUDE.md), [ocaml/CLAUDE.md](ocaml/CLAUDE.md),
-[python/CLAUDE.md](python/CLAUDE.md) и [ruby/CLAUDE.md](ruby/CLAUDE.md).
+[python/CLAUDE.md](python/CLAUDE.md), [ruby/CLAUDE.md](ruby/CLAUDE.md)
+и [scala/CLAUDE.md](scala/CLAUDE.md).
 
 ## Быстрый старт
 
 ```sh
-make setup   # opam switch в ocaml/ + окружение python/.venv через uv + гемы в ruby/vendor/bundle
-make demo    # прогнать все девять вариантов подряд
-make test    # Alcotest (OCaml) + pytest (Python) + RSpec (Ruby)
+make setup   # opam switch в ocaml/ + .venv через uv + гемы в ruby/vendor/bundle + прогрев coursier-кеша scala-cli
+make demo    # прогнать все двенадцать вариантов подряд
+make test    # Alcotest (OCaml) + pytest (Python) + RSpec (Ruby) + munit (Scala)
 ```
 
 `make help` — полный список целей.
@@ -84,6 +87,27 @@ make test    # Alcotest (OCaml) + pytest (Python) + RSpec (Ruby)
   (аналог `dataclasses.replace`/`{ t with ... }`), `Result`/`Maybe`
   вместо исключений и `nil`, поведение — маленькие классы с DI
   (`extend Dry::Initializer`), а не модуль функций.
+
+### Scala (`scala/`)
+
+- `MarriageEarlyStoppingNaive.scala` — буквальный порт: `if`/`else`,
+  `println` прямо в методах, никакой валидации `patience`, эмодзи (🚨,
+  🔄), `null` вместо `Option` — та же точка сравнения, что и в
+  остальных naive-вариантах.
+- `MarriageEarlyStoppingOop.scala` — SOLID: `sealed trait Event` с
+  переопределённым `render` в каждом `case class`/`case object`
+  (полиморфизм вместо ветвления по типу), mutable `Tracker` с
+  маленькими методами, "tell don't ask", ошибка `patience` — через
+  исключение.
+- `MarriageEarlyStoppingFp.scala` — продвинутый FP-стиль на `cats` (та
+  же организация, что `returns`/`dry-rb`, но используется точечно —
+  `Either`/`Option` в Scala и так родные типы с `.map`/`.flatMap`):
+  `case class` с `.copy(...)` для иммутабельных обновлений,
+  `cats.data.Validated` для валидации `patience`, композиция маленьких
+  DI-классов, `foldLeft` вместо цикла с накоплением. Scala 3.8.4,
+  тулинг — `scala-cli` (лучше всех трёх вариантов сборки интегрируется
+  с VS Code/Metals — автогенерация BSP-конфига без отдельного
+  билд-файла).
 
 ## Сборка, запуск, тесты
 
@@ -147,6 +171,24 @@ bundle exec rubocop
 `ruby/vendor/bundle/`, путь зафиксирован в закоммиченном
 `.bundle/config`, так что `bundle install` сразу ставит гемы в
 песочницу, а не в системный/rbenv-global gem path.
+
+### Scala
+
+```sh
+cd scala
+scala-cli run . --main-class marriageearlystopping.naive.run   # буквальный порт
+scala-cli run . --main-class marriageearlystopping.oop.run     # SOLID
+scala-cli run . --main-class marriageearlystopping.fp.run      # монады (cats)
+scala-cli test .                                                # munit, 18 тестов
+scala-cli fmt --check . && scala-cli fix --check . --power
+```
+
+Версия Scala и зависимости (`cats-core`, `munit`) объявлены прямо в
+`scala/project.scala` через `//> using`-директивы — `scala-cli` сам
+качает нужные версии в общесистемный coursier-кеш при первом запуске,
+отдельной установки не требуется (кроме самого `scala-cli`). `.bsp/` и
+`.scala-build/` — генерируются автоматически (BSP-конфиг для Metals и
+кеш инкрементальной компиляции), в репозиторий не входят.
 
 ## Лицензия
 

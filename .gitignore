@@ -10,3 +10,6 @@ __pycache__/
 .ruff_cache/
 vendor/
 .rspec_status
+.scala-build/
+.bsp/
+.metals/
