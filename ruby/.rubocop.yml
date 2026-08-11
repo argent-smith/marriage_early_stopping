@@ -1,0 +1,23 @@
+AllCops:
+  TargetRubyVersion: 4.0
+  NewCops: enable
+  SuggestExtensions: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - "spec/**/*"
+
+# run/check_atmosphere/render в этом проекте — цельные демо-сценарии и
+# однотипные case/when-ветвления по фиксированному набору событий;
+# дробить их дальше ради лимита в 10 строк не добавляет ясности.
+Metrics/MethodLength:
+  Max: 20

@@ -1,9 +1,9 @@
 # marriage_early_stopping
 
 Шуточный Python-класс `MarriageEarlyStopping` — техника early stopping
-из машинного обучения, применённая к отношениям — портирован шесть раз
-на два языка. Учебный пример: как один и тот же сценарий выглядит в
-разных парадигмах и при разном уровне строгости, от буквальной
+из машинного обучения, применённая к отношениям — портирован девять
+раз на три языка. Учебный пример: как один и тот же сценарий выглядит
+в разных парадигмах и при разном уровне строгости, от буквальной
 транскрипции с багами оригинала до идиоматичного FP с монадами.
 
 ## Структура
@@ -11,18 +11,19 @@
 ```
 ocaml/    — три OCaml-порта, свой dune-project и локальная песочница
 python/   — три Python-варианта, свой pyproject.toml и .venv
+ruby/     — три Ruby-варианта, свой Gemfile и vendor/bundle
 ```
 
 Подробности архитектуры и разбор конкретных решений в каждой папке —
-в [CLAUDE.md](CLAUDE.md), [ocaml/CLAUDE.md](ocaml/CLAUDE.md) и
-[python/CLAUDE.md](python/CLAUDE.md).
+в [CLAUDE.md](CLAUDE.md), [ocaml/CLAUDE.md](ocaml/CLAUDE.md),
+[python/CLAUDE.md](python/CLAUDE.md) и [ruby/CLAUDE.md](ruby/CLAUDE.md).
 
 ## Быстрый старт
 
 ```sh
-make setup   # локальный opam switch в ocaml/ + окружение python/.venv через uv
-make demo    # прогнать все шесть вариантов подряд
-make test    # Alcotest (OCaml) + pytest (Python)
+make setup   # opam switch в ocaml/ + окружение python/.venv через uv + гемы в ruby/vendor/bundle
+make demo    # прогнать все девять вариантов подряд
+make test    # Alcotest (OCaml) + pytest (Python) + RSpec (Ruby)
 ```
 
 `make help` — полный список целей.
@@ -63,10 +64,26 @@ make test    # Alcotest (OCaml) + pytest (Python)
   методы, DI логгера через конструктор, ошибка `patience` — через
   исключение.
 - `marriage_early_stopping_fp.py` — продвинутый FP-стиль на монадах
-  `returns` (dry-python — та же организация, что и `dry-rb` для
-  Ruby): иммутабельный `@dataclass(frozen=True)` `Tracker`,
-  `Result`/`Maybe` вместо исключений и `None`, `.map`/`.bind`,
+  `returns` (dry-python): иммутабельный `@dataclass(frozen=True)`
+  `Tracker`, `Result`/`Maybe` вместо исключений и `None`, `.map`/`.bind`,
   `functools.reduce` вместо цикла с накоплением.
+
+### Ruby (`ruby/`)
+
+- `marriage_early_stopping_naive.rb` — буквальный порт: `if`/`else`,
+  `puts` прямо в методах, никакой валидации `patience`, эмодзи (🚨,
+  🔄) — та же точка сравнения, что и `_naive.ml`/Python-оригинал.
+- `marriage_early_stopping_oop.rb` — SOLID + Sandy Metz: события —
+  `Data.define` с полиморфным `#render` вместо ветвления по типу,
+  `Tracker` — маленькие однострочные-пятистрочные методы ("tell,
+  don't ask"), ошибка `patience` — через исключение.
+- `marriage_early_stopping_fp.rb` — продвинутый FP-стиль на `dry-rb`
+  (`dry-monads`+`dry-struct`+`dry-validation`+`dry-initializer`, та же
+  организация, что `returns` — для Python): `Tracker` и события —
+  неизменяемый `Dry::Struct`, обновления через `tracker.new(...)`
+  (аналог `dataclasses.replace`/`{ t with ... }`), `Result`/`Maybe`
+  вместо исключений и `nil`, поведение — маленькие классы с DI
+  (`extend Dry::Initializer`), а не модуль функций.
 
 ## Сборка, запуск, тесты
 
@@ -112,6 +129,24 @@ uv run ruff check . && uv run ruff format --check .
 `[dependency-groups] dev`). `ruff` форматирует всё, кроме
 `marriage_early_stopping.py` — это 1:1 транскрипция скриншота, стиль
 кода в ней намеренно не трогается.
+
+### Ruby
+
+```sh
+cd ruby
+bundle install                                       # vendor/bundle по Gemfile.lock
+bundle exec ruby marriage_early_stopping_naive.rb     # буквальный порт
+bundle exec ruby marriage_early_stopping_oop.rb       # SOLID + Sandy Metz
+bundle exec ruby marriage_early_stopping_fp.rb        # монады (dry-monads)
+bundle exec rspec                                     # 20 тестов
+bundle exec rubocop
+```
+
+Требуется Ruby 4.0.6 (`.ruby-version`, подхватывается `rbenv`
+автоматически при `cd` в папку). Изолированное окружение —
+`ruby/vendor/bundle/`, путь зафиксирован в закоммиченном
+`.bundle/config`, так что `bundle install` сразу ставит гемы в
+песочницу, а не в системный/rbenv-global gem path.
 
 ## Лицензия
 
